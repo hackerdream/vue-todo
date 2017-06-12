@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>vue-todo</title>
+    <link type="text/css" rel="stylesheet" href="todo.css">
+    <link type="text/css" rel="stylesheet" href="font-awesome.min.css">
+</head>
+<body>
+
+<div id="app">
+
+    <div class="title">
+        <p>一个简单的vue-todo</p>
+    </div>
+
+    <div class="todo-main">
+
+        <div class="write-todo">
+            <p>添加任务</p>
+            <div class="todo-input">
+                <input type="text" placeholder="请输入要添加的内容">
+            </div>
+            <div class="todo-status">
+                <ul>
+                    <li>{{unFinishCount}}个任务未完成</li>
+                    <ul>
+                        <li>
+                            <a href="#">所有任务</a>
+                        </li>
+                        <li>
+                            <a href="#">未完成的任务</a>
+                        </li>
+                        <li>
+                            <a href="#">完成的任务</a>
+                        </li>
+                    </ul>
+                </ul>
+            </div>
+        </div>
+
+        <div class="show-todo">
+            <div class="todo-list">
+                <ul class="todos">
+                    <li class="todo" @dblclick="todo.isEdit = !todo.isEdit" v-for="todo of todos">
+                        <div class="view" v-show="!todo.isEdit" :class="{completed:todo.isCheck}">
+                            <input type="checkbox" class="todo-checkbox" v-model="todo.isCheck">
+                            <label>{{todo.content}}</label>
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </div>
+                        <input class="edit" type="text" v-show="todo.isEdit"
+                               @keyup.enter="todo.isEdit = !todo.isEdit"
+                               v-model = "todo.content"
+                        >
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript" src="vue.js"></script>
+<script>
+    var todos = [
+        {
+            content: "hello,我要吃饭睡觉打豆豆",
+            isCheck: false,
+            isEdit:false
+        },
+        {
+            content: "hello,我要吃饭睡觉打豆豆",
+            isCheck: true,
+            isEdit:false
+        }
+    ];
+
+
+    new Vue({
+        el: '#app',
+        data(){
+            return {
+                todos: todos
+
+            }
+        },
+        methods: {
+
+        },
+        computed:{
+            unFinishCount(){
+                var i = 0;
+                [].forEach.call(todos,function (item) {
+                    if(item.isCheck === false){
+                        i++;
+                    }
+                });
+                return i;
+            }
+        }
+    });
+</script>
+</body>
+</html>
