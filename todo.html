@@ -46,11 +46,14 @@
                         <div class="view" v-show="!todo.isEdit" :class="{completed:todo.isCheck}">
                             <input type="checkbox" class="todo-checkbox" v-model="todo.isCheck">
                             <label>{{todo.content}}</label>
-                            <i class="fa fa-times" aria-hidden="true"></i>
+                            <i class="fa fa-times"
+                               aria-hidden="true"
+                               @click="destroy(todo)"
+                            ></i>
                         </div>
                         <input class="edit" type="text" v-show="todo.isEdit"
                                @keyup.enter="todo.isEdit = !todo.isEdit"
-                               v-model = "todo.content"
+                               v-model="todo.content"
                         >
                     </li>
                 </ul>
@@ -68,12 +71,12 @@
         {
             content: "hello,我要吃饭睡觉打豆豆",
             isCheck: false,
-            isEdit:false
+            isEdit: false
         },
         {
             content: "hello,我要吃饭睡觉打豆豆",
             isCheck: true,
-            isEdit:false
+            isEdit: false
         }
     ];
 
@@ -87,13 +90,16 @@
             }
         },
         methods: {
-
+            destroy(todo){
+                let index = this.todos.indexOf(todo);
+                this.todos.splice(index, 1);
+            }
         },
-        computed:{
+        computed: {
             unFinishCount(){
                 var i = 0;
-                [].forEach.call(todos,function (item) {
-                    if(item.isCheck === false){
+                [].forEach.call(todos, function (item) {
+                    if (item.isCheck === false) {
                         i++;
                     }
                 });

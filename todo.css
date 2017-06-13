@@ -92,8 +92,9 @@ a{
     width: 98%;
 }
 
-.view i{
+.todo .view i{
     float: right;
+    cursor: pointer;
 }
 
 
