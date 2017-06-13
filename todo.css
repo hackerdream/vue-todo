@@ -92,6 +92,14 @@ a{
     width: 98%;
 }
 
+.editing .view{
+    display: none;
+}
+
+.editing .edit{
+    display: block;
+}
+
 .todo .view i{
     float: right;
     cursor: pointer;
@@ -104,6 +112,7 @@ a{
 }
 
 .edit{
+    display: none;
     width: 508px;
     height: 24px;
     padding: 3px 7px;
@@ -113,11 +122,15 @@ a{
     border: 1px solid #cccccc;
 }
 
-.hide{
-    display: none;
-}
 
-.completed{
+.completed .view{
     color: #cccccc;
     text-decoration: line-through;
+}
+
+.active{
+    display: block;
+    width: 90px;
+    height: 38px;
+    border: 1px solid #ccc;
 }

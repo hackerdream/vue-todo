@@ -19,20 +19,22 @@
         <div class="write-todo">
             <p>添加任务</p>
             <div class="todo-input">
-                <input type="text" placeholder="请输入要添加的内容">
+                <input type="text" placeholder="请输入要添加的内容" @keyup.enter="addTodo" v-model="currentTodo">
             </div>
             <div class="todo-status">
                 <ul>
-                    <li>{{unFinishCount}}个任务未完成</li>
+                    <li style="color: red">
+                        {{unFinishCount}}个任务未完成
+                    </li>
                     <ul>
                         <li>
-                            <a href="#">所有任务</a>
+                            <a href="#all">所有任务</a>
                         </li>
                         <li>
-                            <a href="#">未完成的任务</a>
+                            <a href="#unfinished">未完成的任务</a>
                         </li>
                         <li>
-                            <a href="#">完成的任务</a>
+                            <a href="#finished">完成的任务</a>
                         </li>
                     </ul>
                 </ul>
@@ -41,19 +43,24 @@
 
         <div class="show-todo">
             <div class="todo-list">
-                <ul class="todos">
-                    <li class="todo" @dblclick="todo.isEdit = !todo.isEdit" v-for="todo of todos">
-                        <div class="view" v-show="!todo.isEdit" :class="{completed:todo.isCheck}">
+                <ul class="list">
+                    <li class="todo" v-for="todo of filterList"
+                        :class="{ completed: todo.isCheck , editing: todo === editorTodo }"
+                    >
+                        <div class="view">
                             <input type="checkbox" class="todo-checkbox" v-model="todo.isCheck">
-                            <label>{{todo.content}}</label>
+                            <label @dblclick="editTodo(todo)">{{todo.content}}</label>
                             <i class="fa fa-times"
                                aria-hidden="true"
                                @click="destroy(todo)"
                             ></i>
                         </div>
-                        <input class="edit" type="text" v-show="todo.isEdit"
-                               @keyup.enter="todo.isEdit = !todo.isEdit"
+                        <input class="edit" type="text"
                                v-model="todo.content"
+                               v-focus="editorTodo === todo"
+                               @keyup.enter="finishEdit(todo)"
+                               @blur="finishEdit(todo)"
+                               @keyup.esc="cancelTodo(todo)"
                         >
                     </li>
                 </ul>
@@ -67,46 +74,123 @@
 
 <script type="text/javascript" src="vue.js"></script>
 <script>
-    var todos = [
-        {
-            content: "hello,我要吃饭睡觉打豆豆",
-            isCheck: false,
-            isEdit: false
+    var store = {
+        save(key, value){
+            localStorage.setItem(key, JSON.stringify(value))
         },
-        {
-            content: "hello,我要吃饭睡觉打豆豆",
-            isCheck: true,
-            isEdit: false
+        fetch(key){
+            return JSON.parse(localStorage.getItem(key)) || [];
         }
-    ];
+    };
+
+    //    var list = [
+    //        {
+    //            content: "hello,我要吃饭睡觉打豆豆",
+    //            isCheck: false,
+    //        },
+    //        {
+    //            content: "hello,我要吃饭睡觉打豆豆",
+    //            isCheck: true,
+    //        }
+    //    ];
+
+    var list = store.fetch("liusin");
 
 
-    new Vue({
+    var filter = {
+        all(list){
+            return list
+        },
+        finished(list){
+            return list.filter(function (item) {
+                return item.isCheck
+            })
+        },
+        unfinished(){
+            return list.filter(function (item) {
+                return !item.isCheck
+            })
+        }
+    };
+
+    var vm = new Vue({
         el: '#app',
         data(){
             return {
-                todos: todos
-
+                list: list,
+                currentTodo: '',
+                editorTodo: '',
+                beforeEditTodo: '',//记录下编辑前的值
+                visibility: 'all' //筛选数据
             }
         },
         methods: {
             destroy(todo){
-                let index = this.todos.indexOf(todo);
-                this.todos.splice(index, 1);
+                let index = this.list.indexOf(todo);
+                this.list.splice(index, 1);
+            },
+            editTodo(todo){ //编辑todo的内容
+                //编辑任务的时候，记录下编辑前的content,方便取消编辑的时候，重新赋给之前的content
+                this.editorTodo = todo;
+                this.beforeEditTodo = todo.content;
+            },
+            addTodo(ev){
+                this.list.push(//添加将要做的列表
+                        {
+                            content: ev.target.value,
+                            isCheck: false
+                        }
+                );
+                this.currentTodo = '';  //输入后清空
+            },
+            finishEdit(todo){
+                this.editorTodo = '';//修改成功后，隐藏编辑框
+            },
+            cancelTodo(todo){ //取消编辑，返回原先值
+                todo.content = this.beforeEditTodo;
+                this.editorTodo = '';
+            }
+        },
+        watch: {
+            list: {
+                handler(){
+                    store.save("liusin", this.list)
+                },
+                deep: true
             }
         },
         computed: {
             unFinishCount(){
-                var i = 0;
-                [].forEach.call(todos, function (item) {
-                    if (item.isCheck === false) {
-                        i++;
+                return this.list.filter(function (item) {
+                    return !item.isCheck
+                }).length;
+            },
+            filterList(){ //过滤列表
+
+
+                return filter[this.visibility] ? filter[this.visibility](list) : list;
+            }
+        },
+        directives: {
+            "focus": {//自动获取焦点
+                update(el, binding){
+                    if (binding.value == true) {
+                        el.focus()
                     }
-                });
-                return i;
+                }
             }
         }
     });
+
+    function watchHashChange() {
+        var hash = window.location.hash.slice(1);
+
+
+        vm.visibility = hash;
+    }
+    watchHashChange();
+
+    window.addEventListener('hashchange', watchHashChange);
 </script>
 </body>
 </html>
